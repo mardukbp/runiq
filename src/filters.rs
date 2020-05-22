@@ -9,7 +9,7 @@ use clap::*;
 use fnv::FnvHashSet;
 use scalable_bloom_filter::ScalableBloomFilter;
 use std::collections::HashSet;
-use xxhash2;
+use zero_xxhash::hash64;
 
 // Enumerable filters for clap-rs.
 arg_enum! {
@@ -109,7 +109,7 @@ impl Filter for DigestFilter {
     #[inline]
     fn detect(&mut self, input: &[u8]) -> bool {
         // hash to u64 always, for collisions
-        let digest = xxhash2::hash64(input, 0);
+        let digest = hash64::xxhash64(input, 0);
 
         // insert the new digest
         self.inner.insert(digest)
@@ -181,7 +181,7 @@ impl Filter for BloomFilter {
     #[inline]
     fn detect(&mut self, input: &[u8]) -> bool {
         // // create a digest from the input
-        let digest = xxhash2::hash64(input, 0);
+        let digest = hash64::xxhash64(input, 0);
 
         // short circuit if duplicated
         if self.inner.contains(&digest) {
